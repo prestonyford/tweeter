@@ -11,23 +11,23 @@ export interface AppNavbarView {
 
 export class AppNavbarPresenter {
 	private userService: UserService
-	private _view: AppNavbarView
+	private view: AppNavbarView
 
 	public constructor(view: AppNavbarView) {
 		this.userService = new UserService();
-		this._view = view;
+		this.view = view;
 	}
 
 	public async logout(authToken: AuthToken) {
-		this._view.displayInfoMessage("Logging Out...", 0);
+		this.view.displayInfoMessage("Logging Out...", 0);
 
 		try {
 			await this.userService.logout(authToken!);
 
-			this._view.clearLastInfoMessage();
-			this._view.clearUserInfo();
+			this.view.clearLastInfoMessage();
+			this.view.clearUserInfo();
 		} catch (error) {
-			this._view.displayErrorMessage(
+			this.view.displayErrorMessage(
 				`Failed to log user out because of exception: ${error}`
 			);
 		}
