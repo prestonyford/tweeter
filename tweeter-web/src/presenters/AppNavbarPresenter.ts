@@ -9,7 +9,7 @@ export interface AppNavbarView extends View {
 	clearUserInfo: () => void;
 }
 
-export class AppNavbarPresenter extends Presenter {
+export class AppNavbarPresenter extends Presenter<AppNavbarView> {
 	private userService: UserService
 
 	public constructor(view: AppNavbarView) {

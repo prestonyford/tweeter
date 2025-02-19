@@ -12,7 +12,7 @@ export interface UserInfoView extends View {
 	clearLastInfoMessage: () => void;
 }
 
-export class UserInfoPresenter extends Presenter {
+export class UserInfoPresenter extends Presenter<UserInfoView> {
 	private followService: FollowService
 
 	public constructor(view: UserInfoView, currentUser: User | null, displayedUser: User | null) {

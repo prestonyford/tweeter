@@ -8,7 +8,7 @@ export interface LoginView extends View {
 	navigate: (path: string) => void;
 }
 
-export class LoginPresenter extends Presenter {
+export class LoginPresenter extends Presenter<LoginView> {
 	private userService: UserService;
 	private _rememberMe = false;
 

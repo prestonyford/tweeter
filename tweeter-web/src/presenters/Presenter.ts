@@ -6,14 +6,14 @@ export interface ToasterView extends View {
 	// ???
 }
 
-export class Presenter {
-	private _view: View;
+export class Presenter<V extends View> {
+	private _view: V;
 
-	protected constructor(view: View) {
+	protected constructor(view: V) {
 		this._view = view;
 	}
 
-	protected get view(): View {
+	protected get view(): V {
 		return this._view;
 	}
 

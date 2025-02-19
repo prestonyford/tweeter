@@ -12,7 +12,7 @@ export interface RegisterView extends View {
 	setImageFileExtension: (ext: string) => void;
 }
 
-export class RegisterPresenter extends Presenter {
+export class RegisterPresenter extends Presenter<RegisterView> {
 	private userService: UserService;
 
 	private _rememberMe = false;

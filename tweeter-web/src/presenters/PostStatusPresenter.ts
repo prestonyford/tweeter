@@ -9,7 +9,7 @@ export interface PostStatusView extends View {
 	setPost: (val: string) => void
 }
 
-export class PostStatusPresenter extends Presenter {
+export class PostStatusPresenter extends Presenter<PostStatusView> {
 	private statusService: StatusService
 
 	public constructor(view: PostStatusView) {
