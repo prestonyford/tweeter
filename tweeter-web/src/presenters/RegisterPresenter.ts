@@ -2,20 +2,17 @@ import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
 import { ChangeEvent } from "react";
 import { Buffer } from "buffer";
-import { Presenter, View } from "./Presenter";
+import { LoadableView } from "./Presenter";
+import { AuthenticationPresenter, AuthenticationView } from "./AuthenticationPresenter";
 
-export interface RegisterView extends View {
-	updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void;
-	setLoadingState: (isLoading: boolean) => void;
-	navigate: (path: string) => void;
+export interface RegisterView extends LoadableView, AuthenticationView {
 	setImageUrl: (url: string) => void;
 	setImageFileExtension: (ext: string) => void;
 }
 
-export class RegisterPresenter extends Presenter<RegisterView> {
+export class RegisterPresenter extends AuthenticationPresenter<RegisterView> {
 	private userService: UserService;
 
-	private _rememberMe = false;
 	private imageBytes = new Uint8Array();
 
 	public constructor(view: RegisterView) {
@@ -66,20 +63,19 @@ export class RegisterPresenter extends Presenter<RegisterView> {
 		password: string,
 		imageFileExtension: string
 	) {
-		this.doFailureReportingOperation("register user", async () => {
+		await this.doFailureReportingOperation("register user", async () => {
 			this.view.setLoadingState(true);
-
-			const [user, authToken] = await this.userService.register(
-				firstName,
-				lastName,
-				alias,
-				password,
-				this.imageBytes,
-				imageFileExtension
+			await this.doAuthenticateOperation(
+				() => this.userService.register(
+					firstName,
+					lastName,
+					alias,
+					password,
+					this.imageBytes,
+					imageFileExtension
+				),
+				"/"
 			);
-
-			this.view.updateUserInfo(user, user, authToken, this._rememberMe);
-			this.view.navigate("/");
 		}, () => {
 			this.view.setLoadingState(false);
 		});
@@ -121,9 +117,5 @@ export class RegisterPresenter extends Presenter<RegisterView> {
 	public handleFileChange(event: ChangeEvent<HTMLInputElement>) {
 		const file = event.target.files?.[0];
 		this.handleImageFile(file);
-	}
-
-	public set rememberMe(value: boolean) {
-		this._rememberMe = value;
 	}
 }

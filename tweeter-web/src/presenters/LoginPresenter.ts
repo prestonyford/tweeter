@@ -1,16 +1,12 @@
-import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
-import { Presenter, View } from "./Presenter";
+import { LoadableView, Presenter } from "./Presenter";
+import { AuthenticationPresenter, AuthenticationView } from "./AuthenticationPresenter";
 
-export interface LoginView extends View {
-	updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void;
-	setLoadingState: (isLoading: boolean) => void;
-	navigate: (path: string) => void;
+export interface LoginView extends LoadableView, AuthenticationView {
 }
 
-export class LoginPresenter extends Presenter<LoginView> {
+export class LoginPresenter extends AuthenticationPresenter<LoginView> {
 	private userService: UserService;
-	private _rememberMe = false;
 
 	public constructor(view: LoginView) {
 		super(view);
@@ -18,18 +14,12 @@ export class LoginPresenter extends Presenter<LoginView> {
 	}
 
 	public async login(alias: string, password: string, originalUrl?: string) {
-		this.doFailureReportingOperation("log user in", async () => {
+		await this.doFailureReportingOperation("log user in", async () => {
 			this.view.setLoadingState(true);
-
-			const [user, authToken] = await this.userService.login(alias, password);
-
-			this.view.updateUserInfo(user, user, authToken, this._rememberMe);
-
-			if (!!originalUrl) {
-				this.view.navigate(originalUrl);
-			} else {
-				this.view.navigate("/");
-			}
+			await this.doAuthenticateOperation(
+				() => this.userService.login(alias, password),
+				!!originalUrl ? originalUrl : "/"
+			);
 		}, () => {
 			this.view.setLoadingState(false);
 		});
@@ -49,9 +39,4 @@ export class LoginPresenter extends Presenter<LoginView> {
 	public checkSubmitButtonStatus(alias: string, password: string): boolean {
 		return !alias || !password;
 	}
-
-	public set rememberMe(value: boolean) {
-		this._rememberMe = value;
-	}
-	
 }

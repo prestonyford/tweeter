@@ -27,7 +27,10 @@ const Register = () => {
 		setLoadingState: setIsLoading,
 		navigate,
 		setImageUrl,
-		setImageFileExtension
+		setImageFileExtension,
+		clearUserInfo: function (): void {
+			throw new Error("Function not implemented.");
+		}
 	};
 
 	const [presenter] = useState(new RegisterPresenter(listener));

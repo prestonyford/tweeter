@@ -27,7 +27,10 @@ const Login = (props: Props) => {
 		updateUserInfo,
 		displayErrorMessage,
 		setLoadingState: setIsLoading,
-		navigate
+		navigate,
+		clearUserInfo: function (): void {
+			throw new Error("Function not implemented.");
+		}
 	};
 
 	const [presenter] = useState(new LoginPresenter(listener));

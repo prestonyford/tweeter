@@ -1,5 +1,6 @@
-export interface OAuthView {
-	displayInfoMessage: (message: string, duration: number, className: string) => void
+import { InfoMessageView } from "./Presenter";
+
+export interface OAuthView extends InfoMessageView {
 }
 
 export class OAuthPresenter {

@@ -3,10 +3,10 @@ import { UserItemPresenter, UserItemView } from "./UserItemPresenter";
 import { PAGE_SIZE } from "./PagedItemPresenter";
 
 export class FolloweePresenter extends UserItemPresenter {
-	protected getItemDescription(): string {
+	protected override getItemDescription(): string {
 		return "load followees";
 	}
-	protected getMoreItems(authToken: AuthToken, userAlias: string): Promise<[User[], boolean]> {
+	protected override getMoreItems(authToken: AuthToken, userAlias: string): Promise<[User[], boolean]> {
 		return this.service.loadMoreFollowees(
 			authToken,
 			userAlias,
