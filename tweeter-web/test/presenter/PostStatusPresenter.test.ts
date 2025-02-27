@@ -54,6 +54,7 @@ describe("PostStatusPresenter", () => {
 		await postStatusPresenter.submitPost(authToken, "post", user);
 
 		verify(mockPostStatusView.displayErrorMessage("Failed to post the status because of exception: An error occurred")).once();
+		verify(mockPostStatusView.clearLastInfoMessage()).once();
 
 		verify(mockPostStatusView.setPost("")).never();
 		verify(mockPostStatusView.displayInfoMessage("Status posted!", anything())).never();

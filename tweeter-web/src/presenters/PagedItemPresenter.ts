@@ -25,7 +25,7 @@ export abstract class PagedItemPresenter<T, U> extends Presenter<PagedItemView<T
 		return this._hasMoreItems;
 	}
 
-	protected set hasMoreItems(value: boolean) {
+	public set hasMoreItems(value: boolean) {
 		this._hasMoreItems = value;
 	}
 

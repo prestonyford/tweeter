@@ -19,7 +19,7 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
 	}
 
 	public async submitPost(authToken: AuthToken, post: string, currentUser: User) {
-		this.doFailureReportingOperation("post the status", async () => {
+		await this.doFailureReportingOperation("post the status", async () => {
 			this.view.setLoadingState(true);
 			this.view.displayInfoMessage("Posting status...", 0);
 
@@ -27,10 +27,10 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
 
 			await this.statusService.postStatus(authToken!, status);
 
-			this.view.clearLastInfoMessage();
 			this.clearPost();
 			this.view.displayInfoMessage("Status posted!", 2000);
 		}, () => {
+			this.view.clearLastInfoMessage();
 			this.view.setLoadingState(false);
 		});
 	}
