@@ -35,10 +35,6 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
 		});
 	}
 
-	public setPost(val: string) {
-		this.view.setPost(val);
-	}
-
 	public clearPost() {
 		this.view.setPost("");
 	}

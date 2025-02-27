@@ -9,7 +9,13 @@ const OAuth = () => {
     const { displayInfoMessage } = useToastListener();
 
     const listener: OAuthView = {
-        displayInfoMessage
+        displayInfoMessage,
+        clearLastInfoMessage: function (): void {
+            throw new Error("Function not implemented.");
+        },
+        displayErrorMessage: function (message: string): void {
+            throw new Error("Function not implemented.");
+        }
     }
 
     const [presenter] = useState(new OAuthPresenter(listener));
