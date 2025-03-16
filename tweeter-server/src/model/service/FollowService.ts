@@ -6,7 +6,6 @@ export class FollowService {
 		user: User,
 		selectedUser: UserDTO
 	): Promise<boolean> {
-		// TODO: Replace with the result of calling server
 		return FakeData.instance.isFollower();
 	};
 
@@ -14,7 +13,6 @@ export class FollowService {
 		token: string,
 		user: UserDTO
 	): Promise<number> {
-		// TODO: Replace with the result of calling server
 		return FakeData.instance.getFolloweeCount(user.alias);
 	};
 
@@ -23,7 +21,6 @@ export class FollowService {
 		token: string,
 		user: UserDTO
 	): Promise<number> {
-		// TODO: Replace with the result of calling server
 		return FakeData.instance.getFollowerCount(user.alias);
 	};
 
@@ -33,8 +30,7 @@ export class FollowService {
 		pageSize: number,
 		lastItem: UserDTO | null
 	): Promise<[UserDTO[], boolean]> {
-		// TODO: Replace with the result of calling server
-		return this.getFakeData(lastItem, pageSize, userAlias);
+		return this.getFakeFollowData(lastItem, pageSize, userAlias);
 	};
 
 	public async loadMoreFollowees(
@@ -43,11 +39,10 @@ export class FollowService {
 		pageSize: number,
 		lastItem: UserDTO | null
 	): Promise<[UserDTO[], boolean]> {
-		// TODO: Replace with the result of calling server
-		return this.getFakeData(lastItem, pageSize, userAlias);
+		return this.getFakeFollowData(lastItem, pageSize, userAlias);
 	};
 
-	private async getFakeData(lastItem: UserDTO | null, pageSize: number, userAlias: string): Promise<[UserDTO[], boolean]> {
+	private async getFakeFollowData(lastItem: UserDTO | null, pageSize: number, userAlias: string): Promise<[UserDTO[], boolean]> {
 		const [items, hasMore] = FakeData.instance.getPageOfUsers(User.fromDto(lastItem), pageSize, userAlias);
 		const dtos = items.map(item => item.dto);
 		return [dtos, hasMore];

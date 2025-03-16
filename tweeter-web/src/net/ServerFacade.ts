@@ -1,6 +1,10 @@
 import {
+	FollowCountRequest,
+	FollowCountResponse,
 	PagedUserItemRequest,
 	PagedUserItemResponse,
+	TweeterRequest,
+	TweeterResponse,
 	User,
 	UserDTO,
 } from "tweeter-shared";
@@ -10,6 +14,51 @@ export class ServerFacade {
 	private SERVER_URL = "https://noruw8wpv2.execute-api.us-east-1.amazonaws.com/dev";
 
 	private clientCommunicator = new ClientCommunicator(this.SERVER_URL);
+
+	private handleResponse<T>(response: TweeterResponse, successCallback: () => T) {
+		if (response.success) {
+			return successCallback();
+		} else {
+			console.error(response);
+			throw new Error(response.message ?? undefined);
+		}
+	}
+
+	public async getFolloweeCount(
+		request: FollowCountRequest
+	): Promise<number> {
+		const response = await this.clientCommunicator.doPost<
+			FollowCountRequest,
+			FollowCountResponse
+		>(request, "/followee/count");
+
+		// Handle errors    
+		return this.handleResponse(response, () => {
+			if (response.count == null) {
+				throw new Error(`No count found`);
+			} else {
+				return response.count;
+			}
+		});
+	}
+	
+	public async getFollowerCount(
+		request: FollowCountRequest
+	): Promise<number> {
+		const response = await this.clientCommunicator.doPost<
+			FollowCountRequest,
+			FollowCountResponse
+		>(request, "/follower/count");
+
+		// Handle errors    
+		return this.handleResponse(response, () => {
+			if (response.count == null) {
+				throw new Error(`No count found`);
+			} else {
+				return response.count;
+			}
+		});
+	}
 
 	public async getMoreFollowees(
 		request: PagedUserItemRequest
@@ -25,16 +74,13 @@ export class ServerFacade {
 			: null;
 
 		// Handle errors
-		if (response.success) {
+		return this.handleResponse(response, () => {
 			if (items == null) {
 				throw new Error(`No followees found`);
 			} else {
 				return [items, response.hasMore];
 			}
-		} else {
-			console.error(response);
-			throw new Error(response.message ?? undefined);
-		}
+		});
 	}
 
 	public async getMoreFollowers(
@@ -50,16 +96,13 @@ export class ServerFacade {
 			? response.items.map((dto) => User.fromDto(dto) as User)
 			: null;
 
-		// Handle errors    
-		if (response.success) {
+		// Handle errors  
+		return this.handleResponse(response, () => {
 			if (items == null) {
 				throw new Error(`No followers found`);
 			} else {
 				return [items, response.hasMore];
 			}
-		} else {
-			console.error(response);
-			throw new Error(response.message ?? undefined);
-		}
+		});
 	}
 }
