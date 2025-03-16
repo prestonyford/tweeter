@@ -6,6 +6,7 @@ import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/userInfoHook";
 import { AppNavbarPresenter, AppNavbarView } from "../../presenters/AppNavbarPresenter";
 import { useState } from "react";
+import { User, AuthToken } from "tweeter-shared";
 
 const AppNavbar = () => {
 	const location = useLocation();
@@ -17,7 +18,13 @@ const AppNavbar = () => {
 		displayInfoMessage,
 		displayErrorMessage,
 		clearUserInfo,
-		clearLastInfoMessage
+		clearLastInfoMessage,
+		updateUserInfo: function (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean): void {
+			throw new Error("Function not implemented.");
+		},
+		navigate: function (path: string): void {
+			throw new Error("Function not implemented.");
+		}
 	};
 
 	const [presenter] = useState(new AppNavbarPresenter(listener));
