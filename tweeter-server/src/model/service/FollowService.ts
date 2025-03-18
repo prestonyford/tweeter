@@ -3,7 +3,7 @@ import { AuthToken, User, FakeData, UserDTO } from "tweeter-shared";
 export class FollowService {
 	public async getIsFollowerStatus (
 		token: string,
-		user: User,
+		user: UserDTO,
 		selectedUser: UserDTO
 	): Promise<boolean> {
 		return FakeData.instance.isFollower();

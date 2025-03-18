@@ -1,6 +1,8 @@
 import {
 	FollowCountRequest,
 	FollowCountResponse,
+	FollowerStatusRequest,
+	FollowerStatusResponse,
 	PagedUserItemRequest,
 	PagedUserItemResponse,
 	TweeterRequest,
@@ -24,9 +26,23 @@ export class ServerFacade {
 		}
 	}
 
-	public async getFolloweeCount(
-		request: FollowCountRequest
-	): Promise<number> {
+	public async getIsFollowerStatus( request: FollowerStatusRequest ): Promise<boolean> {
+		const response = await this.clientCommunicator.doPost<
+			FollowerStatusRequest,
+			FollowerStatusResponse
+		>(request, "/follower/status");
+
+		// Handle errors    
+		return this.handleResponse(response, () => {
+			if (response.status == null) {
+				throw new Error(`No follower status found`);
+			} else {
+				return response.status;
+			}
+		});
+	}
+
+	public async getFolloweeCount( request: FollowCountRequest ): Promise<number> {
 		const response = await this.clientCommunicator.doPost<
 			FollowCountRequest,
 			FollowCountResponse
@@ -35,16 +51,14 @@ export class ServerFacade {
 		// Handle errors    
 		return this.handleResponse(response, () => {
 			if (response.count == null) {
-				throw new Error(`No count found`);
+				throw new Error(`No followee count found`);
 			} else {
 				return response.count;
 			}
 		});
 	}
 	
-	public async getFollowerCount(
-		request: FollowCountRequest
-	): Promise<number> {
+	public async getFollowerCount( request: FollowCountRequest ): Promise<number> {
 		const response = await this.clientCommunicator.doPost<
 			FollowCountRequest,
 			FollowCountResponse
@@ -53,16 +67,14 @@ export class ServerFacade {
 		// Handle errors    
 		return this.handleResponse(response, () => {
 			if (response.count == null) {
-				throw new Error(`No count found`);
+				throw new Error(`No follower count found`);
 			} else {
 				return response.count;
 			}
 		});
 	}
 
-	public async getMoreFollowees(
-		request: PagedUserItemRequest
-	): Promise<[User[], boolean]> {
+	public async getMoreFollowees( request: PagedUserItemRequest ): Promise<[User[], boolean]> {
 		const response = await this.clientCommunicator.doPost<
 			PagedUserItemRequest,
 			PagedUserItemResponse
@@ -83,9 +95,7 @@ export class ServerFacade {
 		});
 	}
 
-	public async getMoreFollowers(
-		request: PagedUserItemRequest
-	): Promise<[User[], boolean]> {
+	public async getMoreFollowers( request: PagedUserItemRequest ): Promise<[User[], boolean]> {
 		const response = await this.clientCommunicator.doPost<
 			PagedUserItemRequest,
 			PagedUserItemResponse
