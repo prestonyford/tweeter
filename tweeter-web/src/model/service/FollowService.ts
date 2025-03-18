@@ -69,4 +69,18 @@ export class FollowService {
 		});
 		// return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
 	};
+
+	public async follow(
+		authToken: AuthToken,
+		userToFollow: User
+	): Promise<void> {
+		await new Promise((f) => setTimeout(f, 2000));
+	}
+
+	public async unfollow(
+		authToken: AuthToken,
+		userToUnfollow: User
+	): Promise<void> {
+		await new Promise((f) => setTimeout(f, 2000));
+	}
 }
