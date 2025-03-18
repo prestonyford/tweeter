@@ -74,13 +74,19 @@ export class FollowService {
 		authToken: AuthToken,
 		userToFollow: User
 	): Promise<void> {
-		await new Promise((f) => setTimeout(f, 2000));
+		await this.serverFacade.follow({
+			token: authToken.token,
+			userToFollow: userToFollow.dto
+		});
 	}
 
 	public async unfollow(
 		authToken: AuthToken,
 		userToUnfollow: User
 	): Promise<void> {
-		await new Promise((f) => setTimeout(f, 2000));
+		await this.serverFacade.unfollow({
+			token: authToken.token,
+			userToUnfollow: userToUnfollow.dto
+		});
 	}
 }

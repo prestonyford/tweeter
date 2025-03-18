@@ -3,10 +3,12 @@ import {
 	FollowCountResponse,
 	FollowerStatusRequest,
 	FollowerStatusResponse,
+	FollowRequest,
 	PagedUserItemRequest,
 	PagedUserItemResponse,
 	TweeterRequest,
 	TweeterResponse,
+	UnfollowRequest,
 	User,
 	UserDTO,
 } from "tweeter-shared";
@@ -30,7 +32,7 @@ export class ServerFacade {
 		const response = await this.clientCommunicator.doPost<
 			FollowerStatusRequest,
 			FollowerStatusResponse
-		>(request, "/follower/status");
+		>(request, "/follow/status");
 
 		// Handle errors    
 		return this.handleResponse(response, () => {
@@ -114,5 +116,24 @@ export class ServerFacade {
 				return [items, response.hasMore];
 			}
 		});
+	}
+
+	
+	public async follow( request: FollowRequest ): Promise<void> {
+		const response = await this.clientCommunicator.doPost<
+			FollowRequest,
+			TweeterResponse
+		>(request, "/follow/follow");
+
+		this.handleResponse(response, () => {});
+	}
+
+	public async unfollow( request: UnfollowRequest ): Promise<void> {
+		const response = await this.clientCommunicator.doPost<
+			UnfollowRequest,
+			TweeterResponse
+		>(request, "/follow/unfollow");
+
+		this.handleResponse(response, () => {});
 	}
 }

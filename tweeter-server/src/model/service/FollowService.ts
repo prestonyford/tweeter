@@ -41,10 +41,25 @@ export class FollowService {
 	): Promise<[UserDTO[], boolean]> {
 		return this.getFakeFollowData(lastItem, pageSize, userAlias);
 	};
+	
+	public async follow(
+		token: string,
+		userToFollow: UserDTO
+	): Promise<void> {
+		return;
+	}
+
+	public async unfollow(
+		token: string,
+		userToUnfollow: UserDTO
+	): Promise<void> {
+		return;
+	}
 
 	private async getFakeFollowData(lastItem: UserDTO | null, pageSize: number, userAlias: string): Promise<[UserDTO[], boolean]> {
 		const [items, hasMore] = FakeData.instance.getPageOfUsers(User.fromDto(lastItem), pageSize, userAlias);
 		const dtos = items.map(item => item.dto);
 		return [dtos, hasMore];
 	}
+	
 }
