@@ -1,4 +1,4 @@
-import { AuthToken, User, FakeData } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
 import { ServerFacade } from "../../net/ServerFacade";
 
 export class FollowService {
@@ -13,7 +13,7 @@ export class FollowService {
 			token: authToken.token,
 			user: user.dto,
 			selectedUser: selectedUser.dto
-		})
+		});
 		// return FakeData.instance.isFollower();
 	};
 
@@ -24,7 +24,7 @@ export class FollowService {
 		return await this.serverFacade.getFolloweeCount({
 			token: authToken.token,
 			user: user.dto
-		})
+		});
 		// return FakeData.instance.getFolloweeCount(user.alias);
 	};
 
@@ -36,7 +36,7 @@ export class FollowService {
 		return await this.serverFacade.getFollowerCount({
 			token: authToken.token,
 			user: user.dto
-		})
+		});
 		// return FakeData.instance.getFollowerCount(user.alias);
 	};
 

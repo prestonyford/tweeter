@@ -4,8 +4,12 @@ import {
 	FollowerStatusRequest,
 	FollowerStatusResponse,
 	FollowRequest,
+	PagedStatusItemRequest,
+	PagedStatusItemResponse,
 	PagedUserItemRequest,
 	PagedUserItemResponse,
+	PostStatusRequest,
+	Status,
 	TweeterRequest,
 	TweeterResponse,
 	UnfollowRequest,
@@ -27,6 +31,10 @@ export class ServerFacade {
 			throw new Error(response.message ?? undefined);
 		}
 	}
+
+	//
+	// Follow
+	//
 
 	public async getIsFollowerStatus( request: FollowerStatusRequest ): Promise<boolean> {
 		const response = await this.clientCommunicator.doPost<
@@ -135,5 +143,62 @@ export class ServerFacade {
 		>(request, "/follow/unfollow");
 
 		this.handleResponse(response, () => {});
+	}
+
+	
+	//
+	// Status
+	//
+	
+	public async postStatus( request: PostStatusRequest ): Promise<void> {
+		const response = await this.clientCommunicator.doPost<
+			PostStatusRequest,
+			TweeterResponse
+		>(request, "/status/post");
+
+		this.handleResponse(response, () => {});
+	}
+
+	public async loadMoreFeedItems( request: PagedStatusItemRequest ): Promise<[Status[], boolean]> {
+		const response = await this.clientCommunicator.doPost<
+			PagedStatusItemRequest,
+			PagedStatusItemResponse
+		>(request, "/status/feed");
+
+		// Convert the StatusDTO array returned by ClientCommunicator to a Status array
+		const items: Status[] | null = response.success && response.items
+			? response.items.map((dto) => Status.fromDto(dto) as Status)
+			: null;
+
+		// Handle errors  
+		return this.handleResponse(response, () => {
+			if (items == null) {
+				throw new Error(`No feed items found`);
+			} else {
+				return [items, response.hasMore];
+			}
+		});
+	}
+
+	
+	public async loadMoreStoryItems( request: PagedStatusItemRequest ): Promise<[Status[], boolean]> {
+		const response = await this.clientCommunicator.doPost<
+			PagedStatusItemRequest,
+			PagedStatusItemResponse
+		>(request, "/status/story");
+
+		// Convert the StatusDTO array returned by ClientCommunicator to a Status array
+		const items: Status[] | null = response.success && response.items
+			? response.items.map((dto) => Status.fromDto(dto) as Status)
+			: null;
+
+		// Handle errors  
+		return this.handleResponse(response, () => {
+			if (items == null) {
+				throw new Error(`No story items found`);
+			} else {
+				return [items, response.hasMore];
+			}
+		});
 	}
 }
