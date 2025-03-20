@@ -1,6 +1,6 @@
 import "./AppNavbar.css";
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Image from "react-bootstrap/Image";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/userInfoHook";
@@ -22,9 +22,7 @@ const AppNavbar = () => {
 		updateUserInfo: function (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean): void {
 			throw new Error("Function not implemented.");
 		},
-		navigate: function (path: string): void {
-			throw new Error("Function not implemented.");
-		}
+		navigate: useNavigate()
 	};
 
 	const [presenter] = useState(new AppNavbarPresenter(listener));

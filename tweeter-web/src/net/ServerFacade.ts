@@ -1,20 +1,25 @@
 import {
+	AuthResponse,
+	AuthToken,
 	FollowCountRequest,
 	FollowCountResponse,
 	FollowerStatusRequest,
 	FollowerStatusResponse,
 	FollowRequest,
+	GetUserRequest,
+	GetUserResponse,
+	LoginRequest,
 	PagedStatusItemRequest,
 	PagedStatusItemResponse,
 	PagedUserItemRequest,
 	PagedUserItemResponse,
 	PostStatusRequest,
+	RegisterRequest,
 	Status,
 	TweeterRequest,
 	TweeterResponse,
 	UnfollowRequest,
-	User,
-	UserDTO,
+	User
 } from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
 
@@ -200,5 +205,59 @@ export class ServerFacade {
 				return [items, response.hasMore];
 			}
 		});
+	}
+
+	
+	//
+	// User
+	//
+
+	public async getUser( request: GetUserRequest ): Promise<User> {
+		const response = await this.clientCommunicator.doPost<
+			GetUserRequest,
+			GetUserResponse
+		>(request, "/user/get");
+
+		// Handle errors  
+		return this.handleResponse(response, () => {
+			if (response.user == null) {
+				throw new Error(`No user found`);
+			} else {
+				return User.fromDto(response.user) as User;
+			}
+		});
+	}
+
+	public async login( request: LoginRequest ): Promise<[User, AuthToken]> {
+		const response = await this.clientCommunicator.doPost<
+			LoginRequest,
+			AuthResponse
+		>(request, "/user/login");
+
+		// Handle errors  
+		return this.handleResponse(response, () => {
+			return [User.fromDto(response.user) as User, AuthToken.fromDto(response.authToken) as AuthToken];
+		});
+	}
+
+	public async register( request: RegisterRequest ): Promise<[User, AuthToken]> {
+		const response = await this.clientCommunicator.doPost<
+			RegisterRequest,
+			AuthResponse
+		>(request, "/user/register");
+
+		// Handle errors  
+		return this.handleResponse(response, () => {
+			return [User.fromDto(response.user) as User, AuthToken.fromDto(response.authToken) as AuthToken];
+		});
+	}
+	
+	public async logout( request: TweeterRequest ): Promise<void> {
+		const response = await this.clientCommunicator.doPost<
+			TweeterRequest,
+			TweeterResponse
+		>(request, "/user/logout");
+
+		this.handleResponse(response, () => {});
 	}
 }
