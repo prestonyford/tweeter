@@ -7,7 +7,7 @@ export class ClientCommunicator {
 		this.SERVER_URL = SERVER_URL;
 	}
 
-	public async doPost<REQ extends TweeterRequest, RES extends TweeterResponse>(
+	public async doPost<REQ, RES extends TweeterResponse>(
 		req: REQ | undefined,
 		endpoint: string,
 		headers?: Headers
@@ -26,7 +26,7 @@ export class ClientCommunicator {
 		const params = this.getParams(
 			"POST",
 			headers,
-			req ? JSON.stringify(req) : req
+			req ? JSON.stringify(req) : undefined
 		);
 
 		console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
