@@ -10,7 +10,7 @@ export class StatusService {
 	): Promise<void> {
 		await this.serverFacade.postStatus({
 			token: authToken.token,
-			newStatus
+			newStatus: newStatus.dto
 		});
 	};
 
