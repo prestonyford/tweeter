@@ -1,4 +1,4 @@
-import { AuthToken, FollowCountRequest, PagedUserItemRequest, RegisterRequest, Status, User } from "tweeter-shared";
+import { AuthToken, Status, User } from "tweeter-shared";
 import { StatusService } from "../../../src/model/service/StatusService";
 
 describe("StatusService", () => {
@@ -18,17 +18,17 @@ describe("StatusService", () => {
 	});
 
 	test("loadMoreFeedItems", async () => {
-		await testLoadItems(statusService.loadMoreFeedItems.bind(statusService));
+		await testLoadItems(statusService.loadMoreFeedItems);
 	});
 
 	
 	test("loadMoreStoryItems", async () => {
-		await testLoadItems(statusService.loadMoreStoryItems.bind(statusService));
+		await testLoadItems(statusService.loadMoreStoryItems);
 	});
 
 	async function testLoadItems(loadItemsFn: (authToken: AuthToken, alias: string, pageSize: number, lastItem: Status) => Promise<[Status[], boolean]>) {
 		const pageSize = 5;
-		const [items, hasMore] = await loadItemsFn(authToken, "alias", pageSize, new Status(
+		const [items, hasMore] = await loadItemsFn.bind(statusService)(authToken, "alias", pageSize, new Status(
 			"post",
 			new User("firstName", "lastName", "alias", "imageUrl"),
 			123
