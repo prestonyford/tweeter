@@ -1,4 +1,5 @@
 import { LoginRequest, RegisterRequest, TweeterRequest, TweeterResponse } from "tweeter-shared";
+import "isomorphic-fetch"
 
 export class ClientCommunicator {
 	private SERVER_URL: string;
