@@ -1,10 +1,8 @@
-import { AuthToken, FollowCountRequest, PagedUserItemRequest, RegisterRequest } from "tweeter-shared";
+import { FollowCountRequest, PagedUserItemRequest, RegisterRequest } from "tweeter-shared";
 import { ServerFacade } from "../../src/net/ServerFacade";
 
 describe("ServerFacade", () => {
 	let serverFacade: ServerFacade;
-
-	const authToken = new AuthToken("abc123", Date.now());
 
 	beforeEach(() => {
 		serverFacade = new ServerFacade();
