@@ -9,23 +9,25 @@ export class UserDynamoDBDAO implements UserDAO {
 	private readonly lastNameAttr = "lastName"
 	private readonly aliasAttr = "alias"
 	private readonly imageUrlAttr = "imageUrl"
+	private readonly hashedPasswordAttr = "hashedPassword";
 	
 	private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 	
-	public async putUser(user: UserDTO): Promise<void> {
+	public async putUser(user: UserDTO, passwordHash: string): Promise<void> {
 		const params = {
 			TableName: this.tableName,
 			Item: {
 				[this.firstNameAttr]: user.firstName,
 				[this.lastNameAttr]: user.lastName,
 				[this.aliasAttr]: user.alias,
-				[this.imageUrlAttr]: user.imageUrl
+				[this.imageUrlAttr]: user.imageUrl,
+				[this.hashedPasswordAttr]: passwordHash
 			}
 		};
 		await this.client.send(new PutCommand(params));
 	}	
 
-	public async getUser(alias: string): Promise<UserDTO | null> {
+	public async getUserInfo(alias: string): Promise<UserDTO | null> {
 		const params = {
 			TableName: this.tableName,
 			Key: {
@@ -40,5 +42,17 @@ export class UserDynamoDBDAO implements UserDAO {
 			alias: output.Item[this.aliasAttr],
 			imageUrl: output.Item[this.imageUrlAttr]
 		};
-	}	
+	}
+
+	public async getUserCredentials(alias: string): Promise<string | null> {
+		const params = {
+			TableName: this.tableName,
+			Key: {
+				[this.aliasAttr]: alias
+			}
+		};
+		
+		const output = await this.client.send(new GetCommand(params));
+		return output.Item == undefined ? null : output.Item[this.hashedPasswordAttr];
+	}
 }

@@ -11,10 +11,18 @@ import { UserDAO } from "./model/dao/UserDAO";
 
 async function auths() {
 	const authsDAO: AuthDAO = new AuthDynamoDBDAO();
-	await authsDAO.putToken("testAlias", "testToken");
+	await authsDAO.putAuth({token: "testToken", timestamp: 1}, "testUser");
 
-	const token = await authsDAO.getToken("testAlias");
-	console.log(token);
+	let [alias, timestamp] = await authsDAO.getAuth("testToken") ?? [null, null];
+	console.log([alias, timestamp]);
+
+	await authsDAO.renewAuth("testToken", 5);
+	[alias, timestamp] = await authsDAO.getAuth("testToken") ?? [null, null];
+	console.log([alias, timestamp]);
+
+	await authsDAO.deleteAuth("testToken");
+	[alias, timestamp] = await authsDAO.getAuth("testToken") ?? [null, null];
+	console.log([alias, timestamp]);
 }
 
 async function users() {
@@ -24,9 +32,9 @@ async function users() {
 		lastName: "testLastname",
 		alias: "testAlias",
 		imageUrl: "testImageUrl",
-	});
+	}, "passwordHashTest");
 
-	const user = await userDAO.getUser("testAlias");
+	const user = await userDAO.getUserInfo("testAlias");
 	console.log(user);
 }
 
@@ -105,7 +113,7 @@ async function feed() {
 }
 
 async function main() {
-	feed();
+	auths();
 }
 
 main();

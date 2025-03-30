@@ -1,33 +1,45 @@
-import { Buffer } from "buffer";
-import { AuthTokenDTO, FakeData, UserDTO } from "tweeter-shared";
+import { AuthToken, AuthTokenDTO, UserDTO } from "tweeter-shared";
 import { DAOFactory } from "../dao/DAOFactory";
 import { UserDAO } from "../dao/UserDAO";
-import { AuthDAO } from "../dao/AuthDAO";
+import { ImageDAO } from "../dao/ImageDAO";
+import bcrypt from "bcryptjs"
+import { Service } from "./Service";
 
-export class UserService {
+export class UserService extends Service {
 	private userDAO: UserDAO;
-	private authDAO: AuthDAO;
+	private imageDAO: ImageDAO;
 
-	public constructor(daoFactory: DAOFactory) {
+	public constructor(daoFactory: DAOFactory, imageDAO: ImageDAO) {
+		super(daoFactory);
 		this.userDAO = daoFactory.getUserDAO();
-		this.authDAO = daoFactory.getAuthDAO();
+		this.imageDAO = imageDAO;
 	}
 
 	public async getUser(
 		token: string,
 		alias: string
 	): Promise<UserDTO | null> {
-		// TODO: Authenticate
-		return await this.userDAO.getUser(alias);
-		// return FakeData.instance.findUserByAlias(alias)?.dto ?? null;
+		await this.checkAuthorized(token);
+
+		const user = await this.userDAO.getUserInfo(alias);
+		return user;
 	};
 
 	public async login(alias: string, password: string): Promise<[UserDTO, AuthTokenDTO]> {
-		const user = FakeData.instance.firstUser;
-		if (user === null) {
+		const user = await this.userDAO.getUserInfo(alias);
+		const hashedPassword = await this.userDAO.getUserCredentials(alias);
+
+		if (!user || !hashedPassword) {
 			throw new Error("[Bad Request] Invalid alias or password");
 		}
-		return [user.dto, FakeData.instance.authToken.dto];
+		if (!await bcrypt.compare(password, hashedPassword)) {
+			throw new Error("[Bad Request] Invalid alias or password");
+		}
+
+		const token = AuthToken.Generate().dto
+		await this.authDAO.putAuth(token, alias);
+
+		return [user, token];
 	}
 
 	public async register (
@@ -38,14 +50,29 @@ export class UserService {
 		imageStringBase64: string,
 		imageFileExtension: string
 	): Promise<[UserDTO, AuthTokenDTO]> {
-		const user = FakeData.instance.firstUser;
-		if (user === null) {
-			throw new Error("[Bad Request] Invalid registration");
+		if (await this.userDAO.getUserInfo(alias)) {
+			throw new Error("[Bad Request] User with the given alias already exists");
 		}
-		return [user.dto, FakeData.instance.authToken.dto];
+
+		const imageUrl = await this.imageDAO.putImage(`${alias}-profile.${imageFileExtension}`, imageStringBase64);
+
+		const salt = await bcrypt.genSalt();
+		const passwordHash = await bcrypt.hash(password, salt);
+		const authToken = AuthToken.Generate().dto;
+
+		await this.userDAO.putUser({ firstName, lastName, alias, imageUrl }, passwordHash);
+		await this.authDAO.putAuth(authToken, alias);
+
+		const user = await this.userDAO.getUserInfo(alias);
+
+		if (!user) {
+			throw new Error("[Server Error] Could not create the user");
+		}
+
+		return [user, authToken];
 	};
 
 	public async logout(token: string): Promise<void> {
-		
+		await this.authDAO.deleteAuth(token)
 	};
 }

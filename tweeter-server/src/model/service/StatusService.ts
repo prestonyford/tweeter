@@ -1,11 +1,53 @@
 import { Status, FakeData, StatusDTO } from "tweeter-shared";
+import { Service } from "./Service";
+import { DAOFactory } from "../dao/DAOFactory";
+import { StoryDAO } from "../dao/StoryDAO";
+import { FeedDAO } from "../dao/FeedDAO";
+import { FollowDAO } from "../dao/FollowDAO";
+import { UserDAO } from "../dao/UserDAO";
 
-export class StatusService {
+export class StatusService extends Service {
+	private readonly storyDAO: StoryDAO;
+	private readonly feedDAO: FeedDAO;
+	private readonly followDAO: FollowDAO;
+	private readonly userDAO: UserDAO;
+
+	public constructor(daoFactory: DAOFactory) {
+		super(daoFactory);
+		this.storyDAO = daoFactory.getStoryDAO();
+		this.feedDAO = daoFactory.getFeedDAO();
+		this.followDAO = daoFactory.getFollowDAO();
+		this.userDAO = daoFactory.getUserDAO();
+	}
+	
 	public async postStatus(
 		token: string,
 		newStatus: StatusDTO
 	): Promise<void> {
+		this.checkAuthorized(token);
+		const alias = await this.getUserAlias(token);
 
+		this.storyDAO.addStory({
+			senderAlias: alias,
+			post: newStatus.post,
+			timestamp: newStatus.timestamp
+		});
+
+		let lastItemAlias = null;
+		const followees = []
+		do {
+			const [page, hasMore] = await this.followDAO.getFollowees(alias, 10, lastItemAlias);
+			followees.push( ...page );
+			lastItemAlias = hasMore ? page[page.length - 1] : null;
+		} while (lastItemAlias);
+
+		followees.forEach(followee => {
+			this.feedDAO.addFeed(followee, {
+				senderAlias: alias,
+				post: newStatus.post,
+				timestamp: newStatus.timestamp
+			});
+		});
 	};
 
 	public async loadMoreFeedItems (
@@ -14,7 +56,26 @@ export class StatusService {
 		pageSize: number,
 		lastItem: StatusDTO | null
 	): Promise<[StatusDTO[], boolean]> {
-		return this.getFakeStatusData(lastItem, pageSize);
+		this.checkAuthorized(token);
+
+		const [posts, hasMore] = await this.feedDAO.getFeed(
+			userAlias,
+			5,
+			lastItem == null ? null : { timestamp: lastItem.timestamp, senderAlias: lastItem.user.alias }
+		);
+
+		const user = await this.userDAO.getUserInfo(userAlias);
+		if (!user) {
+			throw new Error("[Server Error] Error while obtaining feed")
+		}
+
+		const feed: StatusDTO[] = posts.map(post => ({
+			post: post.post,
+			user: user,
+			timestamp: post.timestamp
+		}));
+
+		return [feed, hasMore];
 	};
 
 	public async loadMoreStoryItems (
@@ -23,12 +84,25 @@ export class StatusService {
 		pageSize: number,
 		lastItem: StatusDTO | null
 	): Promise<[StatusDTO[], boolean]> {
-		return this.getFakeStatusData(lastItem, pageSize);
-	};
+		this.checkAuthorized(token);
 
-	private async getFakeStatusData(lastItem: StatusDTO | null, pageSize: number): Promise<[StatusDTO[], boolean]> {
-		const [items, hasMore] = FakeData.instance.getPageOfStatuses(Status.fromDto(lastItem), pageSize);
-		const dtos = items.map(item => item.dto);
-		return [dtos, hasMore];
-	}
+		const [posts, hasMore] = await this.storyDAO.getStory(
+			userAlias,
+			5,
+			lastItem?.timestamp ?? null
+		);
+
+		const user = await this.userDAO.getUserInfo(userAlias);
+		if (!user) {
+			throw new Error("[Server Error] Error while obtaining feed")
+		}
+
+		const feed: StatusDTO[] = posts.map(post => ({
+			post: post.post,
+			user: user,
+			timestamp: post.timestamp
+		}));
+
+		return [feed, hasMore];
+	};
 }
