@@ -10,7 +10,7 @@ import { FollowDynamoDBDAO } from "./FollowDynamoDBDAO";
 import { StoryDynamoDBDAO } from "./StoryDynamoDBDAO";
 import { UserDynamoDBDAO } from "./UserDynamoDBDAO";
 
-export class DynamoDBFactory implements DAOFactory {
+export class DynamoDBDAOFactory implements DAOFactory {
 	getAuthDAO(): AuthDAO {
 		return new AuthDynamoDBDAO();
 	}
