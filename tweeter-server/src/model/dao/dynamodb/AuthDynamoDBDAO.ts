@@ -1,9 +1,9 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { AuthDAO } from "../AuthDAO";
-import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { AuthTokenDTO } from "tweeter-shared";
+import { DynamoDBDAO } from "./DynamoDBDAO";
 
-export class AuthDynamoDBDAO implements AuthDAO {
+export class AuthDynamoDBDAO extends DynamoDBDAO implements AuthDAO {
 	private readonly tableName = "auths";
 	private readonly tokenAttr = "token";
 	private readonly aliasAttr = "alias";
@@ -11,7 +11,7 @@ export class AuthDynamoDBDAO implements AuthDAO {
 	// private readonly saltAttr = "salt";
 	private readonly timestampAttr = "timestamp";
 
-	private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+	private readonly client = this.dynamoDBDocumentClient;
 
 	public async putAuth(token: AuthTokenDTO, alias: string): Promise<void> {
 		const params = {

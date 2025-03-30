@@ -34,20 +34,20 @@ export class StatusService extends Service {
 		});
 
 		let lastItemAlias = null;
+		let hasMore = true;
 		const followees = []
 		do {
-			const [page, hasMore] = await this.followDAO.getFollowees(alias, 10, lastItemAlias);
+			let page;
+			[page, hasMore] = await this.followDAO.getFollowees(alias, 10, lastItemAlias);
+			lastItemAlias = page[page.length - 1];
 			followees.push( ...page );
-			lastItemAlias = hasMore ? page[page.length - 1] : null;
-		} while (lastItemAlias);
+		} while (hasMore);
 
-		followees.forEach(followee => {
-			this.feedDAO.addFeed(followee, {
-				senderAlias: alias,
-				post: newStatus.post,
-				timestamp: newStatus.timestamp
-			});
-		});
+		await Promise.all(followees.map(followee => this.feedDAO.addFeed(followee, {
+			senderAlias: alias,
+			post: newStatus.post,
+			timestamp: newStatus.timestamp
+		})));
 	};
 
 	public async loadMoreFeedItems (
@@ -60,19 +60,17 @@ export class StatusService extends Service {
 
 		const [posts, hasMore] = await this.feedDAO.getFeed(
 			userAlias,
-			5,
+			pageSize,
 			lastItem == null ? null : { timestamp: lastItem.timestamp, senderAlias: lastItem.user.alias }
 		);
 
-		const user = await this.userDAO.getUserInfo(userAlias);
-		if (!user) {
-			throw new Error("[Server Error] Error while obtaining feed")
-		}
-
-		const feed: StatusDTO[] = posts.map(post => ({
-			post: post.post,
-			user: user,
-			timestamp: post.timestamp
+		const feed: StatusDTO[] = await Promise.all(posts.map(async post => {
+			const userDTO = await this.userDAO.getUserInfo(post.senderAlias);
+			return {
+				post: post.post,
+				user: userDTO!, // Handle case where user is not found?
+				timestamp: post.timestamp
+			};
 		}));
 
 		return [feed, hasMore];
@@ -88,7 +86,7 @@ export class StatusService extends Service {
 
 		const [posts, hasMore] = await this.storyDAO.getStory(
 			userAlias,
-			5,
+			pageSize,
 			lastItem?.timestamp ?? null
 		);
 

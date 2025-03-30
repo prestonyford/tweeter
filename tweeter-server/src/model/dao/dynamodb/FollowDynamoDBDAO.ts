@@ -1,14 +1,15 @@
 import { FollowDAO } from "../FollowDAO";
-import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient, Select } from "@aws-sdk/client-dynamodb";
+import { DeleteCommand, GetCommand, PutCommand, QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
+import { Select } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDAO } from "./DynamoDBDAO";
 
-export class FollowDynamoDBDAO implements FollowDAO {
+export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 	private readonly tableName = "follows";
 	private readonly indexName = "followeeAlias-alias-index"
 	private readonly followerAliasAttr = "alias"
 	private readonly followeeAliasAttr = "followeeAlias"
 
-	private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+	private readonly client = this.dynamoDBDocumentClient;
 
 	public async isFollower(followerAlias: string, followeeAlias: string): Promise<boolean> {
 		const params = {

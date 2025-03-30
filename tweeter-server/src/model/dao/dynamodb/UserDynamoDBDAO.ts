@@ -1,9 +1,9 @@
 import { UserDTO } from "tweeter-shared";
 import { UserDAO } from "../UserDAO";
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDAO } from "./DynamoDBDAO";
 
-export class UserDynamoDBDAO implements UserDAO {
+export class UserDynamoDBDAO extends DynamoDBDAO implements UserDAO {
 	private readonly tableName = "users";
 	private readonly firstNameAttr = "firstName"
 	private readonly lastNameAttr = "lastName"
@@ -11,7 +11,7 @@ export class UserDynamoDBDAO implements UserDAO {
 	private readonly imageUrlAttr = "imageUrl"
 	private readonly hashedPasswordAttr = "hashedPassword";
 	
-	private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+	private readonly client = this.dynamoDBDocumentClient;
 	
 	public async putUser(user: UserDTO, passwordHash: string): Promise<void> {
 		const params = {

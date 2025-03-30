@@ -1,14 +1,14 @@
 import { FeedDAO } from "../FeedDAO";
 import { PostDTO } from "../../dto/PostDTO";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDAO } from "./DynamoDBDAO";
 
 interface Item {
 	timestamp: number,
 	senderAlias: string
 }
 
-export class FeedDynamoDBDAO implements FeedDAO {
+export class FeedDynamoDBDAO extends DynamoDBDAO implements FeedDAO {
 	private readonly tableName = "feed";
 	private readonly aliasAttr = "alias"
 	private readonly senderAliasAttr = "senderAlias"
@@ -16,7 +16,7 @@ export class FeedDynamoDBDAO implements FeedDAO {
 	private readonly timestampSenderAttr = "timestamp-senderAlias"
 	private readonly postAttr = "post"
 
-	private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+	private readonly client = this.dynamoDBDocumentClient;
 
 	/**
 	 * 

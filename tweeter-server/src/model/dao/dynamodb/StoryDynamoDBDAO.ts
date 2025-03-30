@@ -1,15 +1,15 @@
 import { StoryDAO } from "../StoryDAO";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { PostDTO } from "../../dto/PostDTO";
+import { DynamoDBDAO } from "./DynamoDBDAO";
 
-export class StoryDynamoDBDAO implements StoryDAO {
+export class StoryDynamoDBDAO extends DynamoDBDAO implements StoryDAO {
 	private readonly tableName = "story";
 	private readonly aliasAttr = "alias"
 	private readonly timestampAttr = "timestamp"
 	private readonly postAttr = "post"
 
-	private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+	private readonly client = this.dynamoDBDocumentClient;
 
 	public async getStory(userAlias: string, pageSize: number, lastItemTimestamp: number | null): Promise<[PostDTO[], boolean]> {
 		const params = {

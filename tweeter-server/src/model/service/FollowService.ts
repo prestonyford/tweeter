@@ -86,7 +86,7 @@ export class FollowService extends Service {
 	): Promise<void> {
 		this.checkAuthorized(token);
 		const alias = await this.getUserAlias(token);
-		this.followDAO.addFollow(userToFollow.alias, alias);
+		await this.followDAO.addFollow(userToFollow.alias, alias);
 	}
 
 	public async unfollow(
@@ -95,6 +95,6 @@ export class FollowService extends Service {
 	): Promise<void> {
 		this.checkAuthorized(token);
 		const alias = await this.getUserAlias(token);
-		this.followDAO.removeFollow(userToUnfollow.alias, alias);
+		await this.followDAO.removeFollow(userToUnfollow.alias, alias);
 	}
 }

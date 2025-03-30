@@ -1,5 +1,6 @@
 import { AuthDAO } from "./model/dao/AuthDAO";
 import { AuthDynamoDBDAO } from "./model/dao/dynamodb/AuthDynamoDBDAO";
+import { DynamoDBDAOFactory } from "./model/dao/dynamodb/DynamoDBDAOFactory";
 import { FeedDynamoDBDAO } from "./model/dao/dynamodb/FeedDynamoDBDAO";
 import { FollowDynamoDBDAO } from "./model/dao/dynamodb/FollowDynamoDBDAO";
 import { StoryDynamoDBDAO } from "./model/dao/dynamodb/StoryDynamoDBDAO";
@@ -8,6 +9,7 @@ import { FeedDAO } from "./model/dao/FeedDAO";
 import { FollowDAO } from "./model/dao/FollowDAO";
 import { StoryDAO } from "./model/dao/StoryDAO";
 import { UserDAO } from "./model/dao/UserDAO";
+import { StatusService } from "./model/service/StatusService";
 
 async function auths() {
 	const authsDAO: AuthDAO = new AuthDynamoDBDAO();
@@ -112,8 +114,23 @@ async function feed() {
 	console.log([moreStories, moreHasMore]);
 }
 
+async function statusService() {
+	const statusService = new StatusService(new DynamoDBDAOFactory());
+
+	await statusService.postStatus("bb809927-3134-474e-a926-565b76312426", {
+		post: "test post text",
+		timestamp: 1,
+		user: {
+			firstName: "TestUserFirstname",
+			lastName: "TestUserLastname",
+			alias: "TestUserAlias",
+			imageUrl: "TestUserImageUrl"
+		}
+	});
+}
+
 async function main() {
-	auths();
+	await statusService();
 }
 
 main();
