@@ -26,7 +26,7 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 			: true;
 	}
 
-	public async getFolloweeCount(userAlias: string): Promise<number> {
+	public async getFollowerCount(userAlias: string): Promise<number> {
 		const params = {
 			TableName: this.tableName,
 			KeyConditionExpression: `${this.followerAliasAttr} = :userAlias`,
@@ -39,7 +39,7 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 		return output.Count ?? 0;
 	}
 
-	public async getFollowerCount(userAlias: string): Promise<number> {
+	public async getFolloweeCount(userAlias: string): Promise<number> {
 		const params = {
 			TableName: this.tableName,
 			KeyConditionExpression: `${this.followeeAliasAttr} = :userAlias`,
@@ -55,18 +55,17 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 
 	public async getFollowers(userAlias: string, pageSize: number, lastItemAlias: string | null): Promise<[string[], boolean]> {
 		const params: QueryCommandInput = {
-			KeyConditionExpression: this.followeeAliasAttr + " = :v",
+			KeyConditionExpression: this.followerAliasAttr + " = :v",
 			ExpressionAttributeValues: {
 				":v": userAlias,
 			},
 			TableName: this.tableName,
 			Limit: pageSize,
-			IndexName: this.indexName,
 			ExclusiveStartKey: lastItemAlias === null
 				? undefined
 				: {
-					[this.followeeAliasAttr]: userAlias,
 					[this.followerAliasAttr]: lastItemAlias,
+					[this.followeeAliasAttr]: userAlias
 				},
 		};
 
@@ -74,18 +73,19 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 		const data = await this.client.send(new QueryCommand(params));
 		const hasMorePages = data.LastEvaluatedKey !== undefined;
 		data.Items?.forEach((item) =>
-			items.push(item[this.followerAliasAttr])
+			items.push(item[this.followeeAliasAttr])
 		);
 		return [items, hasMorePages];
 	}
 
 	public async getFollowees(userAlias: string, pageSize: number, lastItemAlias: string | null): Promise<[string[], boolean]> {
 		const params: QueryCommandInput = {
-			KeyConditionExpression: this.followerAliasAttr + " = :v",
+			KeyConditionExpression: this.followeeAliasAttr + " = :v",
 			ExpressionAttributeValues: {
 				":v": userAlias,
 			},
 			TableName: this.tableName,
+			IndexName: this.indexName,
 			Limit: pageSize,
 			ExclusiveStartKey: lastItemAlias === null
 				? undefined
@@ -99,7 +99,7 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 		const data = await this.client.send(new QueryCommand(params));
 		const hasMorePages = data.LastEvaluatedKey !== undefined;
 		data.Items?.forEach((item) =>
-			items.push(item[this.followeeAliasAttr])
+			items.push(item[this.followerAliasAttr])
 		);
 		return [items, hasMorePages];
 	}

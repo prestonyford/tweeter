@@ -9,6 +9,7 @@ import { FeedDAO } from "./model/dao/FeedDAO";
 import { FollowDAO } from "./model/dao/FollowDAO";
 import { StoryDAO } from "./model/dao/StoryDAO";
 import { UserDAO } from "./model/dao/UserDAO";
+import { FollowService } from "./model/service/FollowService";
 import { StatusService } from "./model/service/StatusService";
 
 async function auths() {
@@ -45,10 +46,13 @@ async function follows() {
 	await followDAO.addFollow("testFollowerAlias", "testFolloweeAlias");
 	await followDAO.addFollow("testFollowerAlias", "testFolloweeAlias2");
 
-	const followeeCount = await followDAO.getFolloweeCount("testFollowerAlias");
-	console.log(followeeCount);
+	const followerCount = await followDAO.getFollowerCount("testFollowerAlias");
+	console.log(followerCount);
 
-	const [followees, hasMore] = await followDAO.getFollowees("testFollowerAlias", 5, null);
+	const [followers, hasMore] = await followDAO.getFollowers("testFollowerAlias", 5, null);
+	console.log(followers);
+	
+	const [followees, _] = await followDAO.getFollowees("testFolloweeAlias", 5, null);
 	console.log(followees);
 }
 
@@ -129,8 +133,19 @@ async function statusService() {
 	});
 }
 
+async function followService() {
+	const followService = new FollowService(new DynamoDBDAOFactory());
+
+	const result = await followService.loadMoreFollowees("000", "b", 5, null);
+	console.log(result);
+
+	const followsDAO = new FollowDynamoDBDAO();
+	const res2 = await followsDAO.getFollowees("b", 5, null);
+	console.log(res2);
+}
+
 async function main() {
-	await statusService();
+	await followService();
 }
 
 main();

@@ -48,14 +48,7 @@ export class FollowService extends Service {
 	): Promise<[UserDTO[], boolean]> {
 		this.checkAuthorized(token);
 		const [aliases, hasMore] = await this.followDAO.getFollowers(userAlias, pageSize, lastItem?.alias ?? null);
-		const users: UserDTO[] = [];
-
-		aliases.forEach(async alias => {
-			const userDTO = await this.userDAO.getUserInfo(alias);
-			if (userDTO) {
-				users.push(userDTO);
-			}
-		});
+		const users: UserDTO[] = await Promise.all(aliases.map(async alias => (await this.userDAO.getUserInfo(alias))!));
 
 		return [users, hasMore];
 	};
@@ -68,14 +61,7 @@ export class FollowService extends Service {
 	): Promise<[UserDTO[], boolean]> {
 		this.checkAuthorized(token);
 		const [aliases, hasMore] = await this.followDAO.getFollowees(userAlias, pageSize, lastItem?.alias ?? null);
-		const users: UserDTO[] = [];
-		
-		aliases.forEach(async alias => {
-			const userDTO = await this.userDAO.getUserInfo(alias);
-			if (userDTO) {
-				users.push(userDTO);
-			}
-		});
+		const users: UserDTO[] = await Promise.all(aliases.map(async alias => (await this.userDAO.getUserInfo(alias))!));
 
 		return [users, hasMore];
 	};
