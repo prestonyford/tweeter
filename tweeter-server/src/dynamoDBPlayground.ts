@@ -156,8 +156,26 @@ async function getFollowersLambda() {
 	console.log(result);
 }
 
+async function updateFeed() {
+	const followsDAO = new FollowDynamoDBDAO();
+	const statusService = new StatusService(new DynamoDBDAOFactory());
+
+	followsDAO.addFollow("test_user", "test_followee");
+
+	statusService.postStatus("001", {
+		post: "test post",
+		timestamp: 1,
+		user: {
+			firstName: "TestUserFirstname",
+			lastName: "TestUserLastname",
+			alias: "TestUserAlias",
+			imageUrl: "TestUserImageUrl"
+		}
+	})
+}
+
 async function main() {
-	await feed();
+	await updateFeed();
 }
 
 main();

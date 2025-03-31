@@ -36,15 +36,15 @@ export class StatusService extends Service {
 
 		let lastItemAlias = null;
 		let hasMore = true;
-		const followees = []
+		const followers = []
 		do {
 			let page;
-			[page, hasMore] = await this.followDAO.getFollowees(alias, 10, lastItemAlias);
+			[page, hasMore] = await this.followDAO.getFollowers(alias, 10, lastItemAlias);
 			lastItemAlias = page[page.length - 1];
-			followees.push( ...page );
+			followers.push( ...page );
 		} while (hasMore);
 
-		await Promise.all(followees.map(followee => this.feedDAO.addFeed(followee, {
+		await Promise.all(followers.map(follower => this.feedDAO.addFeed(follower, {
 			senderAlias: alias,
 			post: newStatus.post,
 			timestamp: newStatus.timestamp
