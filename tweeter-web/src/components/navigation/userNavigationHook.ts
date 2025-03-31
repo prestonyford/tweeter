@@ -1,6 +1,7 @@
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/userInfoHook";
 import { UserNavigationPresenter, UserNavigationView } from "../../presenters/UserNavigationPresenter";
+import { useNavigate } from "react-router-dom";
 
 const useNavigation = () => {
 	const { setDisplayedUser, currentUser, authToken } = useUserInfo();
@@ -8,7 +9,8 @@ const useNavigation = () => {
 
 	const listener: UserNavigationView = {
 		setDisplayedUser,
-		displayErrorMessage
+		displayErrorMessage,
+		navigate: useNavigate(),
 	}
 
 	const presenter = new UserNavigationPresenter(listener); // Does this need to be state?

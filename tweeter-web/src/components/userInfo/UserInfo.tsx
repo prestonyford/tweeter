@@ -1,6 +1,6 @@
 import "./UserInfo.css";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "./userInfoHook";
 import { UserInfoPresenter, UserInfoView } from "../../presenters/UserInfoPresenter";
@@ -24,7 +24,8 @@ const UserInfo = () => {
 		setLoadingState: setIsLoading,
 		displayErrorMessage,
 		displayInfoMessage,
-		clearLastInfoMessage
+		clearLastInfoMessage,
+		navigate: useNavigate()
 	}
 
 	const [presenter] = useState(new UserInfoPresenter(listener, currentUser, displayedUser));

@@ -3,6 +3,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/userInfoHook";
 import { PagedItemPresenter, PagedItemView } from "../../presenters/PagedItemPresenter";
+import { useNavigate } from "react-router-dom";
 
 interface Props<T, U> {
 	presenterGenerator: (view: PagedItemView<T>) => PagedItemPresenter<T, U>,
@@ -39,7 +40,8 @@ const ItemScroller = <T, U>(props: Props<T, U>) => {
 
 	const listener: PagedItemView<T> = {
 		addItems: setNewItems,
-		displayErrorMessage
+		displayErrorMessage,
+		navigate: useNavigate()
 	}
 
 	const [presenter] = useState(props.presenterGenerator(listener))

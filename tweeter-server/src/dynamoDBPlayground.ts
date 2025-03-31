@@ -1,3 +1,4 @@
+import { handler } from "./lambda/follow/GetFollowersLambda";
 import { AuthDAO } from "./model/dao/AuthDAO";
 import { AuthDynamoDBDAO } from "./model/dao/dynamodb/AuthDynamoDBDAO";
 import { DynamoDBDAOFactory } from "./model/dao/dynamodb/DynamoDBDAOFactory";
@@ -136,7 +137,7 @@ async function statusService() {
 async function followService() {
 	const followService = new FollowService(new DynamoDBDAOFactory());
 
-	const result = await followService.loadMoreFollowees("000", "b", 5, null);
+	const result = await followService.loadMoreFollowees("4aebc0bb-db8f-492c-bc96-1a4a525d599b", "b", 5, null);
 	console.log(result);
 
 	const followsDAO = new FollowDynamoDBDAO();
@@ -144,8 +145,19 @@ async function followService() {
 	console.log(res2);
 }
 
+async function getFollowersLambda() {
+	const result = await handler({
+		token: "a",
+		userAlias: "a",
+		pageSize: 5,
+		lastItem: null
+	});
+
+	console.log(result);
+}
+
 async function main() {
-	await followService();
+	await feed();
 }
 
 main();

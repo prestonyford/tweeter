@@ -1,7 +1,7 @@
 import { AuthToken, User } from "tweeter-shared";
-import { NavigableView, Presenter, UserInfoView, View } from "./Presenter";
+import { Presenter, UserInfoView, View } from "./Presenter";
 
-export interface AuthenticationView extends UserInfoView, NavigableView {}
+export interface AuthenticationView extends UserInfoView {}
 
 export abstract class AuthenticationPresenter<V extends AuthenticationView> extends Presenter<V> {
 	protected _rememberMe = false;

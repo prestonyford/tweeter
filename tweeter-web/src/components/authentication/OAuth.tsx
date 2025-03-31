@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { OverlayTrigger, Tooltip } from "react-bootstrap"
 import { OAuthPresenter, OAuthView } from "../../presenters/OAuthPresenter";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const OAuth = () => {
@@ -10,6 +11,7 @@ const OAuth = () => {
 
     const listener: OAuthView = {
         displayInfoMessage,
+        navigate: useNavigate(),
         clearLastInfoMessage: function (): void {
             throw new Error("Function not implemented.");
         },

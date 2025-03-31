@@ -19,7 +19,7 @@ export class FollowService extends Service {
 		user: UserDTO,
 		selectedUser: UserDTO
 	): Promise<boolean> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		return await this.followDAO.isFollower(user.alias, selectedUser.alias);
 	};
 
@@ -27,7 +27,7 @@ export class FollowService extends Service {
 		token: string,
 		user: UserDTO
 	): Promise<number> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		return await this.followDAO.getFolloweeCount(user.alias);
 	};
 
@@ -36,7 +36,7 @@ export class FollowService extends Service {
 		token: string,
 		user: UserDTO
 	): Promise<number> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		return await this.followDAO.getFollowerCount(user.alias);
 	};
 
@@ -46,7 +46,7 @@ export class FollowService extends Service {
 		pageSize: number,
 		lastItem: UserDTO | null
 	): Promise<[UserDTO[], boolean]> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		const [aliases, hasMore] = await this.followDAO.getFollowers(userAlias, pageSize, lastItem?.alias ?? null);
 		const users: UserDTO[] = await Promise.all(aliases.map(async alias => (await this.userDAO.getUserInfo(alias))!));
 
@@ -59,7 +59,7 @@ export class FollowService extends Service {
 		pageSize: number,
 		lastItem: UserDTO | null
 	): Promise<[UserDTO[], boolean]> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		const [aliases, hasMore] = await this.followDAO.getFollowees(userAlias, pageSize, lastItem?.alias ?? null);
 		const users: UserDTO[] = await Promise.all(aliases.map(async alias => (await this.userDAO.getUserInfo(alias))!));
 
@@ -70,7 +70,7 @@ export class FollowService extends Service {
 		token: string,
 		userToFollow: UserDTO
 	): Promise<void> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		const alias = await this.getUserAlias(token);
 		await this.followDAO.addFollow(userToFollow.alias, alias);
 	}
@@ -79,7 +79,7 @@ export class FollowService extends Service {
 		token: string,
 		userToUnfollow: UserDTO
 	): Promise<void> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		const alias = await this.getUserAlias(token);
 		await this.followDAO.removeFollow(userToUnfollow.alias, alias);
 	}

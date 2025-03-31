@@ -32,6 +32,7 @@ export class FeedDynamoDBDAO extends DynamoDBDAO implements FeedDAO {
 				":v": userAlias,
 			},
 			Limit: pageSize,
+			ScanIndexForward: false,
 			ExclusiveStartKey: lastItem === null
 				? undefined
 				: {

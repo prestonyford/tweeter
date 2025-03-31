@@ -2,6 +2,7 @@ import { AuthToken, User } from "tweeter-shared";
 
 export interface View {
 	displayErrorMessage: (message: string) => void;
+	navigate: (path: string) => void;
 }
 
 export interface InfoMessageView extends View {
@@ -11,10 +12,6 @@ export interface InfoMessageView extends View {
 
 export interface LoadableView extends View {
 	setLoadingState: (isLoading: boolean) => void;
-}
-
-export interface NavigableView extends View {
-	navigate: (path: string) => void;
 }
 
 export interface UserInfoView extends View {
@@ -41,8 +38,10 @@ export class Presenter<V extends View> {
 		try {
 			await operation();
 		} catch (error) {
+			const errorMessage = (error as Error).message ?? (error as any).errorMessage;
+			// if (/Session timed out/.test(errorMessage)) {
 			this.view.displayErrorMessage(
-				`Failed to ${operationDescription} because of exception: ${(error as Error).message}`
+				`Failed to ${operationDescription} because of exception: ${errorMessage}`
 			);
 		} finally {
 			finallyOperation?.();

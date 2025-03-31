@@ -4,6 +4,7 @@ import { UserDAO } from "../dao/UserDAO";
 import { ImageDAO } from "../dao/ImageDAO";
 import bcrypt from "bcryptjs"
 import { Service } from "./Service";
+import { ServiceException } from "./exception/ServiceException";
 
 export class UserService extends Service {
 	private userDAO: UserDAO;
@@ -19,7 +20,7 @@ export class UserService extends Service {
 		token: string,
 		alias: string
 	): Promise<UserDTO | null> {
-		await this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 
 		const user = await this.userDAO.getUserInfo(alias);
 		return user;
@@ -30,10 +31,10 @@ export class UserService extends Service {
 		const hashedPassword = await this.userDAO.getUserCredentials(alias);
 
 		if (!user || !hashedPassword) {
-			throw new Error("[Bad Request] Invalid alias or password");
+			throw new ServiceException(400, "Invalid alias or password");
 		}
 		if (!await bcrypt.compare(password, hashedPassword)) {
-			throw new Error("[Bad Request] Invalid alias or password");
+			throw new ServiceException(400, "Invalid alias or password");
 		}
 
 		const token = AuthToken.Generate().dto
@@ -51,7 +52,7 @@ export class UserService extends Service {
 		imageFileExtension: string
 	): Promise<[UserDTO, AuthTokenDTO]> {
 		if (await this.userDAO.getUserInfo(alias)) {
-			throw new Error("[Bad Request] User with the given alias already exists");
+			throw new ServiceException(400, "User with the given alias already exists");
 		}
 
 		const imageUrl = await this.imageDAO.putImage(`${alias}-profile.${imageFileExtension}`, imageStringBase64);
@@ -66,7 +67,7 @@ export class UserService extends Service {
 		const user = await this.userDAO.getUserInfo(alias);
 
 		if (!user) {
-			throw new Error("[Server Error] Could not create the user");
+			throw new ServiceException(500, "Could not create the user");
 		}
 
 		return [user, authToken];

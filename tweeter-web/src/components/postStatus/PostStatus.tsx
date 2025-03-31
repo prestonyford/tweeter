@@ -4,6 +4,7 @@ import { AuthToken, Status } from "tweeter-shared";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/userInfoHook";
 import { PostStatusPresenter, PostStatusView } from "../../presenters/PostStatusPresenter";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
 	presenter?: PostStatusPresenter
@@ -23,7 +24,8 @@ const PostStatus = (props: Props) => {
 		displayInfoMessage,
 		displayErrorMessage,
 		clearLastInfoMessage,
-		setPost
+		setPost,
+		navigate: useNavigate(),
 	}
 
 	const [presenter] = useState(props.presenter ?? new PostStatusPresenter(listener))

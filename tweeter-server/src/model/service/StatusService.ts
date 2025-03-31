@@ -5,6 +5,7 @@ import { StoryDAO } from "../dao/StoryDAO";
 import { FeedDAO } from "../dao/FeedDAO";
 import { FollowDAO } from "../dao/FollowDAO";
 import { UserDAO } from "../dao/UserDAO";
+import { ServiceException } from "./exception/ServiceException";
 
 export class StatusService extends Service {
 	private readonly storyDAO: StoryDAO;
@@ -24,7 +25,7 @@ export class StatusService extends Service {
 		token: string,
 		newStatus: StatusDTO
 	): Promise<void> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 		const alias = await this.getUserAlias(token);
 
 		this.storyDAO.addStory({
@@ -56,7 +57,7 @@ export class StatusService extends Service {
 		pageSize: number,
 		lastItem: StatusDTO | null
 	): Promise<[StatusDTO[], boolean]> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 
 		const [posts, hasMore] = await this.feedDAO.getFeed(
 			userAlias,
@@ -82,7 +83,7 @@ export class StatusService extends Service {
 		pageSize: number,
 		lastItem: StatusDTO | null
 	): Promise<[StatusDTO[], boolean]> {
-		this.checkAuthorized(token);
+		await this.checkAuthorizedAndRenew(token);
 
 		const [posts, hasMore] = await this.storyDAO.getStory(
 			userAlias,
@@ -92,7 +93,7 @@ export class StatusService extends Service {
 
 		const user = await this.userDAO.getUserInfo(userAlias);
 		if (!user) {
-			throw new Error("[Server Error] Error while obtaining feed")
+			throw new ServiceException(500, "Error while obtaining feed");
 		}
 
 		const feed: StatusDTO[] = posts.map(post => ({

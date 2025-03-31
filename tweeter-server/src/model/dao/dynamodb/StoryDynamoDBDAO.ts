@@ -19,6 +19,7 @@ export class StoryDynamoDBDAO extends DynamoDBDAO implements StoryDAO {
 				":v": userAlias,
 			},
 			Limit: pageSize,
+			ScanIndexForward: false,
 			ExclusiveStartKey: lastItemTimestamp === null
 				? undefined
 				: {

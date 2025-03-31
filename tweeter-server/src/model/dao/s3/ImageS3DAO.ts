@@ -1,5 +1,6 @@
 import { ObjectCannedACL, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { ImageDAO } from "../ImageDAO";
+import { ServiceException } from "../../service/exception/ServiceException";
 
 export class ImageS3DAO implements ImageDAO {
 	private static BUCKET: string = "pyford340bucket";
@@ -25,7 +26,7 @@ export class ImageS3DAO implements ImageDAO {
 				`https://${ImageS3DAO.BUCKET}.s3.${ImageS3DAO.REGION}.amazonaws.com/image/${fileName}`
 			);
 		} catch (error) {
-			throw Error("[Server Error] s3 put image failed with: " + error);
+			throw new ServiceException(500, "s3 put image failed with: " + error);
 		}
 	}
 }
