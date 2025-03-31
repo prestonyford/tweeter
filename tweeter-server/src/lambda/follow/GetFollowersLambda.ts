@@ -1,10 +1,10 @@
 import { PagedUserItemRequest, PagedUserItemResponse, TweeterResponse } from "tweeter-shared";
 import { FollowService } from "../../model/service/FollowService";
 import { DynamoDBDAOFactory } from "../../model/dao/dynamodb/DynamoDBDAOFactory";
-import { ServiceException } from "../../model/service/exception/ServiceException";
+import { doLambdaOperation } from "../LambdaHelper";
 
-export const handler = async (request: PagedUserItemRequest): Promise<PagedUserItemResponse | TweeterResponse> => {
-	try {
+export const handler = async (request: PagedUserItemRequest) => {
+	return await doLambdaOperation<PagedUserItemResponse>(async () => {
 		const followService = new FollowService(new DynamoDBDAOFactory());
 
 		const [items, hasMore] = await followService.loadMoreFollowers(
@@ -20,11 +20,5 @@ export const handler = async (request: PagedUserItemRequest): Promise<PagedUserI
 			items: items,
 			hasMore: hasMore
 		}
-	} catch (e) {
-		const error = e as ServiceException; 
-		return {
-			success: false,
-			message: error.message
-		}
-	}
+	});
 }

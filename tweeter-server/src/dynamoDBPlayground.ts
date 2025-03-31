@@ -147,8 +147,8 @@ async function followService() {
 
 async function getFollowersLambda() {
 	const result = await handler({
-		token: "a",
-		userAlias: "a",
+		token: "3cd2ab39-714c-4eaf-9f61-b7c0985abb84",
+		userAlias: "prestonyford",
 		pageSize: 5,
 		lastItem: null
 	});
@@ -175,7 +175,7 @@ async function updateFeed() {
 }
 
 async function main() {
-	await updateFeed();
+	await getFollowersLambda();
 }
 
 main();
