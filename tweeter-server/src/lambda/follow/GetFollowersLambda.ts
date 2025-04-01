@@ -6,7 +6,6 @@ import { doLambdaOperation } from "../LambdaHelper";
 export const handler = async (request: PagedUserItemRequest) => {
 	return await doLambdaOperation<PagedUserItemResponse>(async () => {
 		const followService = new FollowService(new DynamoDBDAOFactory());
-
 		const [items, hasMore] = await followService.loadMoreFollowers(
 			request.token,
 			request.userAlias,
