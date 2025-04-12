@@ -1,4 +1,5 @@
 import { PostDTO } from "../dto/PostDTO";
+import { UpdateFeedJob } from "../dto/UpdateFeedJob";
 
 export interface FeedDAO {
 	/**
@@ -16,4 +17,6 @@ export interface FeedDAO {
 	 * @param post The post. `post.senderAlias` is the alias of the user who sent `post`.
 	 */
 	addFeed(userAlias: string, post: PostDTO): Promise<void>
+
+	batchWriteFeeds(job: UpdateFeedJob): Promise<void>
 }

@@ -83,4 +83,16 @@ export class FollowService extends Service {
 		const alias = await this.getUserAlias(token);
 		await this.followDAO.removeFollow(userToUnfollow.alias, alias);
 	}
+
+	public async loadFollowerAliases(
+		token: string,
+		userAlias: string,
+		pageSize: number,
+		lastItem: string | null
+	): Promise<[string[], boolean]> {
+		await this.checkAuthorizedAndRenew(token);
+		const [aliases, hasMore] = await this.followDAO.getFollowers(userAlias, pageSize, lastItem ?? null);
+
+		return [aliases, hasMore];
+	};
 }

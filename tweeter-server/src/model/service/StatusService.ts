@@ -6,6 +6,8 @@ import { FeedDAO } from "../dao/FeedDAO";
 import { FollowDAO } from "../dao/FollowDAO";
 import { UserDAO } from "../dao/UserDAO";
 import { ServiceException } from "./exception/ServiceException";
+import { PostDTO } from "../dto/PostDTO";
+import { UpdateFeedJob } from "../dto/UpdateFeedJob";
 
 export class StatusService extends Service {
 	private readonly storyDAO: StoryDAO;
@@ -39,7 +41,7 @@ export class StatusService extends Service {
 		const followers = []
 		do {
 			let page;
-			[page, hasMore] = await this.followDAO.getFollowers(alias, 10, lastItemAlias);
+			[page, hasMore] = await this.followDAO.getFollowers(alias, 1000, lastItemAlias);
 			lastItemAlias = page[page.length - 1];
 			followers.push( ...page );
 		} while (hasMore);
@@ -104,4 +106,30 @@ export class StatusService extends Service {
 
 		return [feed, hasMore];
 	};
+
+	public async addToStory(
+		token: string,
+		newStatus: StatusDTO
+	) {
+		await this.checkAuthorizedAndRenew(token);
+		const alias = await this.getUserAlias(token);
+
+		this.storyDAO.addStory({
+			senderAlias: alias,
+			post: newStatus.post,
+			timestamp: newStatus.timestamp
+		});
+
+	}
+	
+	public async addToFeed(
+		userAlias: string,
+		newPost: PostDTO
+	) {
+		await this.feedDAO.addFeed(userAlias, newPost);
+	}
+
+	public async batchWriteFeeds(job: UpdateFeedJob) {
+		await this.feedDAO.batchWriteFeeds(job);
+	}
 }

@@ -64,8 +64,8 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 			ExclusiveStartKey: lastItemAlias === null
 				? undefined
 				: {
-					[this.followerAliasAttr]: lastItemAlias,
-					[this.followeeAliasAttr]: userAlias
+					[this.followerAliasAttr]: userAlias,
+					[this.followeeAliasAttr]: lastItemAlias
 				},
 		};
 
@@ -90,8 +90,8 @@ export class FollowDynamoDBDAO extends DynamoDBDAO implements FollowDAO {
 			ExclusiveStartKey: lastItemAlias === null
 				? undefined
 				: {
-					[this.followerAliasAttr]: userAlias,
-					[this.followeeAliasAttr]: lastItemAlias,
+					[this.followeeAliasAttr]: userAlias,
+					[this.followerAliasAttr]: lastItemAlias,
 				},
 		};
 

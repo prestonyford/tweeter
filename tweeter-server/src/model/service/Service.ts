@@ -35,7 +35,7 @@ export abstract class Service {
 		}
 	}
 
-	protected async getUserAlias(token: string): Promise<string> {
+	public async getUserAlias(token: string): Promise<string> {
 		const [alias, _] = await this.authDAO.getAuth(token) ?? [null, null];
 		if (alias == null) {
 			throw new ServiceException(400, "Session timed out");

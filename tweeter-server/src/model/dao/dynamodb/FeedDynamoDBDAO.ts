@@ -1,7 +1,8 @@
 import { FeedDAO } from "../FeedDAO";
 import { PostDTO } from "../../dto/PostDTO";
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { BatchWriteCommand, BatchWriteCommandInput, BatchWriteCommandOutput, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBDAO } from "./DynamoDBDAO";
+import { UpdateFeedJob } from "../../dto/UpdateFeedJob";
 
 interface Item {
 	timestamp: number,
@@ -40,7 +41,7 @@ export class FeedDynamoDBDAO extends DynamoDBDAO implements FeedDAO {
 					[this.timestampSenderAttr]: `${lastItem.timestamp}-${lastItem.senderAlias}`,
 				},
 		};
-		
+
 		const items: PostDTO[] = [];
 		const data = await this.client.send(new QueryCommand(params));
 		const hasMorePages = data.LastEvaluatedKey !== undefined;
@@ -67,5 +68,68 @@ export class FeedDynamoDBDAO extends DynamoDBDAO implements FeedDAO {
 		};
 		await this.client.send(new PutCommand(params));
 	}
-	
+
+	/**
+	 * 
+	 * @param jobs usersToUpdateFeed length must be at most 25
+	 */
+	public async batchWriteFeeds(job: UpdateFeedJob) {
+		const params = {
+			RequestItems: {
+				[this.tableName]: job.usersToUpdateFeed.map(userAlias => ({
+					PutRequest: {
+						Item: {
+							[this.aliasAttr]: userAlias,
+							[this.timestampSenderAttr]: `${job.post.timestamp}-${job.post.senderAlias}`,
+							[this.senderAliasAttr]: job.post.senderAlias,
+							[this.postAttr]: job.post.post,
+							[this.timestampAttr]: job.post.timestamp
+						}
+					}
+				}))
+			},
+		};
+
+		try {
+			const response = await this.client.send(new BatchWriteCommand(params));
+			await this.putUnprocessedItems(response, params);
+		} catch (err) {
+			throw new Error(
+				`Error while batch writing follows with params: ${params} \n${err}`
+			);
+		}
+	}
+
+	private async putUnprocessedItems(
+		resp: BatchWriteCommandOutput,
+		params: BatchWriteCommandInput,
+	) {
+		let delay = 10;
+		let attempts = 0;
+
+		while (
+			resp.UnprocessedItems !== undefined &&
+			Object.keys(resp.UnprocessedItems).length > 0
+		) {
+			attempts++;
+
+			if (attempts > 1) {
+				// Pause before the next attempt
+				await new Promise((resolve) => setTimeout(resolve, delay));
+
+				// Increase pause time for next attempt
+				if (delay < 1000) {
+					delay += 100;
+				}
+			}
+
+			console.log(
+				`Attempt ${attempts}. Processing ${Object.keys(resp.UnprocessedItems).length
+				} unprocessed follow items.`
+			);
+
+			params.RequestItems = resp.UnprocessedItems;
+			resp = await this.client.send(new BatchWriteCommand(params));
+		}
+	}
 }
