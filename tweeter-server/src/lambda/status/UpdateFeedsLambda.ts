@@ -10,7 +10,6 @@ const statusService = new StatusService(new DynamoDBDAOFactory());
 export const handler = async function (event: any) {
 	console.log("in handler");
 	for (let i = 0; i < event.Records.length; ++i) {
-		const startTime = Date.now();
 
 		const { body } = event.Records[i];
 		const job: UpdateFeedJob = JSON.parse(body);
@@ -26,10 +25,12 @@ export const handler = async function (event: any) {
 
 		// Process each chunk sequentially
 		for (const chunk of chunks) {
-			const endTime = Date.now();
+			const startTime = Date.now();
 			
 			await statusService.batchWriteFeeds(chunk);
 
+			const endTime = Date.now();
+			
 			const elapsedTime = endTime - startTime;
 			const sleepTime = Math.max(0, 300 - elapsedTime);
 

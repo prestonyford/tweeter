@@ -219,3 +219,14 @@ async function main() {
 }
 
 main();
+
+
+/*
+
+CHECKLIST
+feed 50 RCU
+feed 100 WCU
+follows 100 RCU
+lambda triggers
+
+*/
