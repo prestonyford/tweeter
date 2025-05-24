@@ -1,6 +1,6 @@
-# Tweeter-Web
+# Tweeter
 
-A starter project for the Tweeter Web application.
+A twitter clone that utilizes AWS Lambda, DynamoDB, S3, and SQS.
 
 ## Setting Up the Project
 
